@@ -13,30 +13,30 @@ func main() {
 	pubKey := keyPair.PublicKey
 	priKey := keyPair.PrivateKey
 
-	fmt.Printf("  p: %s\n", priKey.P.String())
-	fmt.Printf("  q: %s\n", priKey.Q.String())
+	fmt.Printf("  p: %s\n", trimOutput(priKey.P.String()))
+	fmt.Printf("  q: %s\n", trimOutput(priKey.Q.String()))
 	fmt.Println("  RSA Public Key:")
-	fmt.Printf("    n: %s\n", pubKey.N)
+	fmt.Printf("    n: %s\n", trimOutput(pubKey.N.String()))
 	fmt.Printf("    e: %s\n", pubKey.E)
 	fmt.Println()
 	fmt.Println("  RSA Private Key:")
-	fmt.Printf("    n: %s\n", priKey.N)
-	fmt.Printf("    d: %s\n", priKey.D)
+	fmt.Printf("    n: %s\n", trimOutput(priKey.N.String()))
+	fmt.Printf("    d: %s\n", trimOutput(priKey.D.String()))
 	fmt.Println()
 
 	fmt.Println("2. Generating AES-256 Key...")
 	aesKey, _ := aescbc.GenerateKey()
-	fmt.Printf("  Original AES Key (hex): %x\n", aesKey)
+	fmt.Printf("  Original AES Key (hex): %s\n", trimOutput(fmt.Sprintf("%x", aesKey)))
 	fmt.Println()
 
 	fmt.Println("3. Encrypting AES Key with RSA Public Key...")
 	encryptedAESKey, _ := rsa.Encrypt(&keyPair.PublicKey, aesKey)
-	fmt.Printf("  Encrypted AES Key (hex): %x\n", encryptedAESKey)
+	fmt.Printf("  Encrypted AES Key (hex): %s\n", trimOutput(fmt.Sprintf("%x", encryptedAESKey)))
 	fmt.Println()
 
 	fmt.Println("4. Decrypting AES Key with RSA Private Key...")
 	decryptedAESKey, _ := rsa.Decrypt(&keyPair.PrivateKey, encryptedAESKey)
-	fmt.Printf("  Decrypted AES Key (hex): %x\n", decryptedAESKey)
+	fmt.Printf("  Decrypted AES Key (hex): %s\n", trimOutput(fmt.Sprintf("%x", decryptedAESKey)))
 	fmt.Println()
 
 	fmt.Println("5. Verification...")
@@ -56,4 +56,8 @@ func main() {
 	} else {
 		fmt.Println("  FAILED: Decrypted AES key length does not match the original key")
 	}
+}
+
+func trimOutput(s string) string {
+	return s[:10] + "..." + s[len(s)-10:]
 }

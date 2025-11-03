@@ -44,7 +44,7 @@ func main() {
 
 	fmt.Println("4. Encrypting AES key with RSA public key...")
 	encryptedAESKey, _ := rsa.Encrypt(&keyPair.PublicKey, aesKey)
-	fmt.Printf("   Encrypted AES Key (hex): %x\n", encryptedAESKey)
+	fmt.Printf("   Encrypted AES Key (hex): %s\n", trimOutput(fmt.Sprintf("%x", encryptedAESKey)))
 	fmt.Println()
 
 	fmt.Println("5. Decrypting AES key with RSA private key...")
@@ -124,4 +124,8 @@ func getOutputPath(inputPath, suffix string) string {
 	ext := filepath.Ext(base)
 	name := strings.TrimSuffix(base, ext)
 	return filepath.Join(dir, name+suffix)
+}
+
+func trimOutput(s string) string {
+	return s[:10] + "..." + s[len(s)-10:]
 }

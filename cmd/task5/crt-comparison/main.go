@@ -13,7 +13,7 @@ func main() {
 	keyPair, _ := rsa.GenerateKeyPair(2048)
 	aesKey, _ := aescbc.GenerateKey()
 	encryptedAESKey, _ := rsa.Encrypt(&keyPair.PublicKey, aesKey)
-	fmt.Printf("  Encrypted AES Key (hex): %x\n", encryptedAESKey)
+	fmt.Printf("  Encrypted AES Key (hex): %s\n", trimOutput(fmt.Sprintf("%x", encryptedAESKey)))
 	fmt.Println()
 
 	fmt.Println("2. Decrypting AES key using standard RSA Decryption...")
@@ -38,4 +38,8 @@ func main() {
 	fmt.Printf("  CRT-Optimized Decryption: %v\n", durationCRT)
 	fmt.Printf("  Speedup: %.2fx faster with CRT\n", speedup)
 	fmt.Println()
+}
+
+func trimOutput(s string) string {
+	return s[:10] + "..." + s[len(s)-10:]
 }
