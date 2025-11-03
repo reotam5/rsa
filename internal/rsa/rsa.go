@@ -88,3 +88,37 @@ func Decrypt(privKey *PrivateKey, ciphertext []byte) ([]byte, error) {
 	// convert back to bytes and return
 	return plaintext.Bytes(), nil
 }
+
+// rsa decryption using Chinese Remainder Theorem optimization
+// step 1: compute dp = d mod (p - 1) and dq = d mod (q - 1)
+// step 2: decrypt with mp = c^dp mod p
+// step 3: decrypt with mq = c^dq mod q
+// step 4: combine mp and mq with h = (mp - mq) * q inverse (mod p)
+// step 5: final result is m = mq + q * h
+func DecryptCRT(privKey *PrivateKey, ciphertext []byte) []byte {
+	c := new(big.Int).SetBytes(ciphertext)
+
+	p := privKey.P
+	q := privKey.Q
+	d := privKey.D
+
+	pMinus1 := new(big.Int).Sub(p, big.NewInt(1))
+	qMinus1 := new(big.Int).Sub(q, big.NewInt(1))
+	dp := new(big.Int).Mod(d, pMinus1)
+	dq := new(big.Int).Mod(d, qMinus1)
+
+	// Compute mp and mq
+	mp := new(big.Int).Exp(c, dp, p)
+	mq := new(big.Int).Exp(c, dq, q)
+
+	// combine with CRT
+	qInv := new(big.Int).ModInverse(q, p)
+	h := new(big.Int).Sub(mp, mq)
+	h.Mul(h, qInv)
+	h.Mod(h, p)
+
+	plaintext := new(big.Int).Set(mq)
+	plaintext.Add(plaintext, new(big.Int).Mul(h, q))
+
+	return plaintext.Bytes()
+}
