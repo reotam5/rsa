@@ -2,44 +2,24 @@ package main
 
 import (
 	"fmt"
-	"math/big"
 
-	"reotamai/assign4/internal/bbs"
-	"reotamai/assign4/internal/millerrabin"
+	"reotamai/assign4/internal/rsa"
 )
 
 func main() {
-	p := generatePrime(256)
-	q := generatePrime(256)
+	keyPair, _ := rsa.GenerateKeyPair(512)
+	public := keyPair.PublicKey
+	private := keyPair.PrivateKey
 
 	fmt.Println("Generated 256-bit primes:")
-	fmt.Printf("  p: %s\n", p.String())
-	fmt.Printf("  q: %s\n", q.String())
-
-	// commonly used public exponent
-	e := big.NewInt(65537)
-
-	// n = p * q
-	n := new(big.Int).Mul(p, q)
-
-	// d = e^(-1) mod (p-1)(q-1)
-	d := new(big.Int).ModInverse(e, new(big.Int).Mul(new(big.Int).Sub(p, big.NewInt(1)), new(big.Int).Sub(q, big.NewInt(1))))
+	fmt.Printf("  p: %s\n", private.P.String())
+	fmt.Printf("  q: %s\n", private.Q.String())
 
 	fmt.Println("\nRSA Public Key Components:")
-	fmt.Printf("  n (modulus): %s\n", n.String())
-	fmt.Printf("  e (exponent): %s\n", e.String())
+	fmt.Printf("  n: %s\n", public.N.String())
+	fmt.Printf("  e: %s\n", public.E.String())
 
 	fmt.Println("\nRSA Private Key Components:")
-	fmt.Printf("  n (modulus): %s\n", n.String())
-	fmt.Printf("  d (private exponent): %s\n", d.String())
-}
-
-func generatePrime(bits int) *big.Int {
-	for {
-		bbsGen, _ := bbs.CreateBBSStruct()
-		candidate := bbsGen.GenerateBigInt(bits)
-		if millerrabin.IsPrime(candidate) {
-			return candidate
-		}
-	}
+	fmt.Printf("  n: %s\n", private.N.String())
+	fmt.Printf("  d: %s\n", private.D.String())
 }
